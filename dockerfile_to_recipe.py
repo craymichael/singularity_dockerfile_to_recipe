@@ -33,7 +33,7 @@ if __name__ == '__main__':
                              'multiple times for multiple Docker ARGs.')
     # Parse the args
     args = parser.parse_args()
-    custom_args = dict(args.arg)
+    custom_args = dict(args.arg or '')
 
     # Open provided file
     with open(args.input_file, 'r') as f:

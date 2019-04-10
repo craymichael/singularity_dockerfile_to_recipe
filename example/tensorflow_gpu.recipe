@@ -26,6 +26,7 @@ bashrc /etc/bash.bashrc
 # ARCH and CUDA are specified again because the FROM directive resets ARGs
 # (but their default value is retained if set previously)
 
+# Needed for string substitution 
 # Pick up some TF dependencies
 apt-get update && apt-get install -y --no-install-recommends \
 build-essential \
