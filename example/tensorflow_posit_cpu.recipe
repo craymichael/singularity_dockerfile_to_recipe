@@ -1,0 +1,165 @@
+Bootstrap: docker
+From: ubuntu:16.04 
+%files
+bashrc /etc/bash.bashrc
+%post
+# Copyright 2018 The TensorFlow Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ============================================================================
+#
+# Please refer to the TensorFlow dockerfiles documentation
+# for more information.
+# https://github.com/tensorflow/tensorflow/tree/master/tensorflow/tools/dockerfiles
+
+
+# ARCH is specified again because the FROM directive resets ARGs
+# (but their default value is retained if set previously)
+
+# Needed for string substitution
+# Pick up some TF, universal, and bazel dependencies
+apt-get update && apt-get install -y --no-install-recommends \
+build-essential \
+curl \
+libfreetype6-dev \
+libhdf5-serial-dev \
+libzmq3-dev \
+pkg-config \
+software-properties-common \
+unzip \
+git \
+pkg-config \
+zip \
+g++ \
+zlib1g-dev \
+cmake \
+unzip \
+vim \
+nano
+
+
+# See http://bugs.python.org/issue19846
+LANG=C.UTF-8
+
+# Install universal
+git clone https://github.com/stillwater-sc/universal \
+&& mkdir universal/build \
+&& cd universal/build/ \
+&& cmake .. \
+&& make -j 4 \
+&& sed -i -e 's/universal\/universal/universal/g' cmake_install.cmake \
+&& make install \
+&& cd ../.. \
+&& rm -rf universal/
+
+add-apt-repository ppa:deadsnakes/ppa \
+&& apt-get update && apt-get install -y \
+python3.6 \
+python3.6-dev \
+&& curl https://bootstrap.pypa.io/get-pip.py | python3.6 \
+&& apt-get clean \
+&& rm -rf /var/lib/apt/lists/*
+
+# Pip/setuptools and https://kgcoe-git.rit.edu/sf3052/Posit-Project-Code
+if [ "$(python3.6 -c "import sys;print(sys.byteorder == 'little')")" = "True" ] ; then \
+EXTRA="grpcio"; else EXTRA=""; fi \
+&& pip3.6 --no-cache-dir install --upgrade \
+pip \
+setuptools \
+absl-py \
+astor \
+gast \
+six \
+protobuf \
+tensorboard \
+termcolor \
+wheel \
+mock \
+cython \
+matplotlib \
+scipy \
+h5py \
+softposit \
+graphviz \
+pydot \
+future \
+$EXTRA \
+&& pip --no-cache-dir install --upgrade --no-deps \
+keras_applications \
+keras_preprocessing \
+keras
+
+# NumPy-Posit
+pip uninstall -y numpy \
+&& git clone https://github.com/xman/numpy-posit.git \
+&& cd numpy-posit/ \
+&& git submodule update --init --recursive \
+&& python3.6 setup.py install \
+&& cd .. \
+&& rm -rf numpy-posit/
+
+# Install bazel
+curl -L \
+https://github.com/bazelbuild/bazel/releases/download/0.17.2/bazel-0.17.2-installer-linux-x86_64.sh \
+> bazel-0.17.2-installer-linux-x86_64.sh \
+&& chmod +x bazel-0.17.2-installer-linux-x86_64.sh \
+&& ./bazel-0.17.2-installer-linux-x86_64.sh \
+&& rm bazel-0.17.2-installer-linux-x86_64.sh
+
+# Some TF tools expect a "python" binary
+ln -s $(which python3.6) /usr/local/bin/python
+
+# Install TensorFlow
+# https://gist.github.com/PatWie/0c915d5be59a518f934392219ca65c3d
+git clone https://github.com/xman/tensorflow.git \
+&& cd tensorflow/ \
+&& git checkout posit-1.11.0 \
+&& export PYTHON_BIN_PATH=$(which python3.6) \
+&& export PYTHON_LIB_PATH="$($PYTHON_BIN_PATH -c 'import site; print(site.getsitepackages()[0])')" \
+&& export TF_NEED_GCP=0 \
+&& export TF_NEED_CUDA=0 \
+&& export TF_NEED_HDFS=0 \
+&& export TF_NEED_OPENCL=0 \
+&& export TF_NEED_JEMALLOC=1 \
+&& export TF_ENABLE_XLA=0 \
+&& export TF_NEED_VERBS=0 \
+&& export TF_NEED_MKL=0 \
+&& export TF_DOWNLOAD_MKL=0 \
+&& export TF_NEED_AWS=0 \
+&& export TF_NEED_MPI=0 \
+&& export TF_NEED_GDR=0 \
+&& export TF_NEED_S3=0 \
+&& export TF_NEED_OPENCL_SYCL=0 \
+&& export TF_SET_ANDROID_WORKSPACE=0 \
+&& export TF_NEED_COMPUTECPP=0 \
+&& export GCC_HOST_COMPILER_PATH=$(which gcc) \
+&& export CC_OPT_FLAGS="-march=native" \
+&& export TF_SET_ANDROID_WORKSPACE=0 \
+&& export TF_NEED_KAFKA=0 \
+&& export TF_NEED_TENSORRT=0 \
+&& export TF_NEED_NGRAPH=0 \
+&& export TF_DOWNLOAD_CLANG=0 \
+&& export CC_OPT_FLAGS="-march=native" \
+&& ./configure \
+&& TMP=/tmp bazel build --config=opt //tensorflow/tools/pip_package:build_pip_package --verbose_failures \
+&& bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg \
+&& pip install --no-deps /tmp/tensorflow_pkg/tensorflow-1.11.0*.whl \
+&& cd .. \
+&& rm -rf tensorflow/
+
+chmod a+rwx /etc/bash.bashrc
+%environment
+export LANG=C.UTF-8
+%runscript
+exec /bin/bash "$@"
+
