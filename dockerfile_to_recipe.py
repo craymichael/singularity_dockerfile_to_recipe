@@ -18,7 +18,7 @@ if __name__ == '__main__':
     # Create and add script args
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description='Dockerfile to recipe conversion',
+        description='Dockerfile to recipe conversion.',
         epilog=textwrap.dedent('''\
         Examples:
             ./{script} ubuntu.Dockerfile > ubuntu.recipe
