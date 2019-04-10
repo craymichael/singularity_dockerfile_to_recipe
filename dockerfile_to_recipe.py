@@ -38,6 +38,7 @@ if __name__ == '__main__':
 
     # Dockerfile args start with this string:
     arg_str = 'ARG '
+    shell_str = 'SHELL '  # Ignore these lines (naive)
 
 
     def run_subprocess(cmd, env=None, shell=False, executable=None):
@@ -83,6 +84,9 @@ if __name__ == '__main__':
 
     for line_orig in text.splitlines():
         line = line_orig.lstrip()
+
+        if line[:len(shell_str)].upper().startswith(shell_str):
+            continue  # Ignore shell lines (1-line ignore is Naive)
 
         if not line[:len(arg_str)].upper().startswith(arg_str):
             # Perform substitution if needed
