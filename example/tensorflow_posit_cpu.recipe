@@ -70,7 +70,7 @@ python3.6-dev \
 && apt-get clean \
 && rm -rf /var/lib/apt/lists/*
 
-# Pip/setuptools and https://kgcoe-git.rit.edu/sf3052/Posit-Project-Code
+# Pip/setuptools and posit deps
 if [ "$(python3.6 -c "import sys;print(sys.byteorder == 'little')")" = "True" ] ; then \
 EXTRA="grpcio"; else EXTRA=""; fi \
 && pip3.6 --no-cache-dir install --upgrade \
@@ -89,6 +89,8 @@ cython \
 matplotlib \
 scipy \
 h5py \
+pandas \
+seaborn \
 softposit \
 graphviz \
 pydot \
@@ -121,6 +123,7 @@ ln -s $(which python3.6) /usr/local/bin/python
 
 # Install TensorFlow
 # https://gist.github.com/PatWie/0c915d5be59a518f934392219ca65c3d
+# https://github.com/tensorflow/tensorflow/issues/7843
 git clone https://github.com/xman/tensorflow.git \
 && cd tensorflow/ \
 && git checkout posit-1.11.0 \

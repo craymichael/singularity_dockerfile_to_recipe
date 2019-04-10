@@ -73,7 +73,7 @@ RUN add-apt-repository ppa:deadsnakes/ppa \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Pip/setuptools and https://kgcoe-git.rit.edu/sf3052/Posit-Project-Code
+# Pip/setuptools and posit deps
 RUN if [ "$(${PYTHON} -c "import sys;print(sys.byteorder == 'little')")" = "True" ] ; then \
     EXTRA="grpcio"; else EXTRA=""; fi \
     && ${PIP} --no-cache-dir install --upgrade \
@@ -92,6 +92,8 @@ RUN if [ "$(${PYTHON} -c "import sys;print(sys.byteorder == 'little')")" = "True
     matplotlib \
     scipy \
     h5py \
+    pandas \
+    seaborn \
     softposit \
     graphviz \
     pydot \
@@ -127,6 +129,7 @@ RUN ln -s $(which ${PYTHON}) /usr/local/bin/python
 # Install TensorFlow
 ARG TENSORFLOW_VERSION=1.11.0
 # https://gist.github.com/PatWie/0c915d5be59a518f934392219ca65c3d
+# https://github.com/tensorflow/tensorflow/issues/7843
 RUN git clone https://github.com/xman/tensorflow.git \
     && cd tensorflow/ \
     && git checkout posit-${TENSORFLOW_VERSION} \
