@@ -26,9 +26,7 @@ FROM nvidia/cuda${ARCH:+-${ARCH}}:${CUDA}-base-ubuntu${UBUNTU_VERSION} as base
 # (but their default value is retained if set previously)
 ARG ARCH
 ARG CUDA
-ARG CUDNN=\
-\
-7.4.1.5-1
+ARG CUDNN=7.4.1.5-1
 
 # Needed for string substitution 
 SHELL \
