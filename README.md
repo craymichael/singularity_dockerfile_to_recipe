@@ -23,28 +23,8 @@ python3 setup.py install
   - future
   - regex
 
-### Internal/dev docs:
-Build a test image (as root):
+### Container Building Example:
+Build a test image:
 ```bash
-/opt/singularity/3.1.0/bin/singularity build tensorflow_1.13.1-gpu-py3_test.simg /home/zjc2920/singularity/recipes/tensorflow_1.13.1-gpu-py3_test
-```
-
-Convert Dockerfile to a singularity recipe:
-```bash
-spython recipe singularity/recipes/tensorflow_gpu.Dockerfile
-```
-
-### Nu.AI Server (kgcoe-nanolab.main.ad.rit.edu)
-Build a recipe (as root):
-```bash
-export PATH=${PATH}:/opt/singularity/3.1.0/bin/
-singularity build <output>.simg <input_recipe>
-```
-
-Build and run a sandbox environment (as root):
-```bash
-export PATH=${PATH}:/opt/singularity/3.1.0/bin/
-singularity build --sandbox tensorflow_gpu_sandbox/ tensorflow_gpu.recipe
-singularity shell tensorflow_gpu_sandbox 
-singularity shell --writable tensorflow_gpu_sandbox  # --writable for persistent changes
+singularity build tensorflow_gpu.simg tensorflow_gpu.recipe
 ```
