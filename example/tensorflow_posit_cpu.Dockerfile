@@ -98,6 +98,7 @@ RUN if [ "$(${PYTHON} -c "import sys;print(sys.byteorder == 'little')")" = "True
     graphviz \
     pydot \
     future \
+    scikit-learn \
     $EXTRA \
     && pip --no-cache-dir install --upgrade --no-deps \
     keras_applications \
